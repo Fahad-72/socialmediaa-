@@ -1,0 +1,6 @@
+{
+  "posts": [
+    { "id": 1, "author": "Alice", "content": "Hello!", "createdAt": "1h ago" },
+    { "id": 2, "author": "Bob", "content": "Welcome!", "createdAt": "2h ago" }
+  ]
+}
