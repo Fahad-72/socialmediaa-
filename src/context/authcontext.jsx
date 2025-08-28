@@ -1,36 +1,44 @@
-import { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import * as authService from "../service/authService";
 
 const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(authService.getCurrentUser());
 
-  const login = (email, password) => {
-    // fake login (replace with backend)
-    if (email && password) {
-      const loggedUser = { id: 1, name: "Demo User", email };
-      setUser(loggedUser);
-      localStorage.setItem("user", JSON.stringify(loggedUser));
-    }
+  useEffect(() => {
+    // sync from localStorage if another tab logged in
+    const onStorage = () => setUser(authService.getCurrentUser());
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  const login = async (email, password) => {
+    const u = await authService.login(email, password);
+    setUser(u);
+    return u;
   };
 
-  const register = (name, email, password) => {
-    // fake register (replace with backend)
-    const newUser = { id: Date.now(), name, email };
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+  const register = async (payload) => {
+    const u = await authService.register(payload);
+    setUser(u);
+    return u;
   };
 
   const logout = () => {
+    authService.logout();
     setUser(null);
-    localStorage.removeItem("user");
+  };
+
+  const update = (patch) => {
+    const u = authService.updateProfile(patch);
+    setUser(u);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, update }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => useContext(AuthContext);
+}

@@ -1,33 +1,29 @@
-import { FaHome, FaUserFriends, FaFacebookMessenger, FaBell } from "react-icons/fa";
-import { useAuth } from "../../context/authcontext";
-import Dropdown from "../../components/dropdown";
+import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { useNotification } from "../../context/notificationcontext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const { notifs } = useNotification();
+  const nav = useNavigate();
 
   return (
-    <nav className="navbar">
-      <h2 className="logo">Social Media</h2>
-      <div className="nav-icons">
-        <FaHome size={22} />
-        <FaUserFriends size={22} />
-
-        <Dropdown
-          icon={<FaFacebookMessenger size={22} />}
-          title="Messages"
-          items={["Sarah: Hi there!", "Ali: Let's play cricket"]}
-        />
-
-        <Dropdown
-          icon={<FaBell size={22} />}
-          title="Notifications"
-          items={["John liked your photo", "Sarah commented on your post"]}
-        />
+    <header className="nav">
+      <div className="brand" onClick={() => nav("/")}>SociaLite</div>
+      <nav className="nav-links">
+        <NavLink to="/">Feed</NavLink>
+        <NavLink to="/explore">Explore</NavLink>
+        <NavLink to="/messages">Messages</NavLink>
+        <NavLink to="/notifications">Notifications ({notifs.length})</NavLink>
+      </nav>
+      <div className="nav-actions">
+        <button onClick={()=>setTheme(theme==="dark"?"light":"dark")}>{theme==="dark"?"☀️":"🌙"}</button>
+        {user && <button onClick={()=>nav(`/profile/${user.id}`)}>Profile</button>}
+        {user && <button onClick={logout}>Logout</button>}
       </div>
-      <div className="user-section">
-        <span>{user?.name}</span>
-        <button onClick={logout}>Logout</button>
-      </div>
-    </nav>
+    </header>
   );
 }

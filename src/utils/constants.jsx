@@ -1,1 +1,1 @@
-export const APP_NAME = "Social Media";
+export const APP_NAME = "SociaLite";
